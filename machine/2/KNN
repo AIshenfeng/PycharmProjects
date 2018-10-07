@@ -1,0 +1,114 @@
+from numpy import *
+import operator
+
+
+#创建初始训练数据和输出标签
+def create_data():
+    group=array([[1.0,1.1],[1.0,1.0],[0,0],[0,0.1]])
+    labels=['A','A','B','B']
+    return group,labels
+
+
+#2——1
+def classify0(intx,dataset,labels,k):
+    datasize=dataset.shape[0]                   #训练数据的个数， shape[0]行的个数，shape[1]列的个数
+    diffMat=tile(intx,(datasize,1))-dataset     #tile(intx,(4,1)) 创建4×1矩阵 - dataset
+    sqdiffMat=diffMat**2                        #**2 里面的数据平方
+    sqdistance=sqdiffMat.sum(axis=1)**0.5       #sum把数组中[]内的数据求和，   **0.5 里面的数据开放
+    Sorted=sqdistance.argsort()                 #数组排序
+    dd={}
+    for i in range(k):
+        label=labels[Sorted[i]]
+        dd[label]=dd.get(label,0)+1             #get(label,0)  取dd[label],如果不存在，返回0
+    sorted_count=sorted(dd.items(),key=operator.itemgetter(1),reverse=True_)        #逆向排序
+
+    return sorted_count[0][0]                   #
+
+data,ls=create_data()
+print(classify0([0,0],data,ls,3))
+
+
+#2_2
+#读取文件并转化为矩阵
+def file2matrix(filename):
+    #读取所有的行
+    f=open(filename,'r')
+    filelines=f.readlines()
+    f.close()
+    data_size=len(filelines)
+    #创建data_size * 3的零矩阵
+    data_matrix=zeros(data_size,3)
+    #标签向量
+    LabelsVocter=[]
+    index=0
+    for line in filelines:
+        line.strip()                        #去除首尾的空格
+        listline=line.strip('\t')           #用table键切分
+        data_matrix[index,:]=listline[:3]
+        LabelsVocter.append(int(listline[-1]))
+        index=index+1
+    return data_matrix,LabelsVocter
+
+#2_3
+#数值归一化
+def autoNorm(dataset):  #参数是矩阵
+    minVals=dataset.min(0)      #参数0，使得函数可以从列中选取最小值
+    maxVals=dataset.max(0)
+    ranges=maxVals-minVals
+    autodataset=zeros(shape(dataset)) #创建和dataset形状一样的0矩阵
+    autodataset=dataset-tile(minVals,(dataset.shape[0],1))  #dataset.shape(0) 矩阵的行数
+    autodataset=autodataset/tile(ranges,(dataset.shape[0],1))
+    return autodataset,minVals,ranges
+
+#2 - 4  分类器测试
+def datatest():
+    data_matrix,data_labels=file2matrix('file_str_name')
+    normdata,minv,rangV=autoNorm(data_matrix)
+    m=normdata.shape[0]
+    test_ratio=0.1
+    test_n=int(m*test_ratio)
+    error_cnt=0.0
+    for i in range(test_n):
+        getclassid=classify0(normdata[i,:],normdata[test_n:m,:],data_labels[test_n:m],3)
+        print('classifier : %d,the real answer :%d'%(getclassid,data_labels[i]))
+        if getclassid!=data_labels[i]:
+            error_cnt+=1.0
+    print('error ratio %f'%(error_cnt/float(test_n)))
+
+
+#手写视频系统的代码
+#图像是储存在文本中的，要用到上面的分类算法，要把图片转化为向量
+def img2vector(filename):
+    f=open(filename)
+    filelines=f.readlines()
+    f.close()
+    vector=zeros((1,1024))
+    for i in range(32):
+        line = filelines[i]
+        for j in range(32):
+            vector[0,32*i+j]=int(line[j])
+    return vector
+
+#测试代码
+def handwriteclass():
+    HLabels=[]
+    filedir=listdir('tran_file_dir')
+    m=len(filedir)
+    vectors=zeros(m,1024)
+    for i in range(m):
+        #这两句是伪代码
+        vectors[i,:]=img2vector(filedir[i].filename)
+        HLabels.append(int(filedir[i].num))
+
+    testdir=list('test_file_dir')
+    error_count=0.0
+    n=len(testdir)
+    for j in range(n):
+        #是伪代码，因为没有找到测试数据，比清楚文件命名的特点
+        filetemp=testdir[j]
+        file_vector=img2vector(filetemp)
+        real_num=filetemp.getnum()
+        get_num=HLabels[classify0(file_vector,vectors,HLabels,3)]
+        if real_num!=get_num:
+            error_count+=1.0
+    print('error ratio is %f'%(error_count/float(n)))

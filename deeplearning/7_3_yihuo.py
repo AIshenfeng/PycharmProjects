@@ -53,4 +53,6 @@ with tf.Session() as sess:
         _,pre,Loss,Error=sess.run([train,pred,loss,err],feed_dict={input_features:X,input_lable:Y})
         if epoch%display==0:
             print("Epoch=",epoch,"  Loss=",Loss)
-    print(sess.run(pred,feed_dict={input_features:X}))
+    pre=sess.run(pred,feed_dict={input_features:X})
+    pre=[0 if i<0.5 else 1 for i in pre]
+    print pre

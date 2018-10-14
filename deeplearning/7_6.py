@@ -55,7 +55,7 @@ hidden_n=16
 input_dim=2 #输入层节点的个数 input_n
 output_n=1 #输出层节点个数
 learn_ing=0.04
-Epoch=3000
+Epoch=20000
 display=1000
 
 #定义占位符
@@ -138,7 +138,8 @@ with tf.Session() as sess:
         for j in range(nb_of_xs):
             # classification_plane[i,j] = nn_predict(xx[i,j], yy[i,j])
             classification_plane[i, j] = sess.run(pred, feed_dict={input_features: [[xx[i, j], yy[i, j]]]})
-            classification_plane[i, j] = int(classification_plane[i, j])
+            classification_plane[i, j] = int(classification_plane[i, j]*2)
+            #print classification_plane[i, j]
 
     # Create a color map to show the classification colors of each grid point
     cmap = ListedColormap([

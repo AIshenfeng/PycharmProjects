@@ -66,7 +66,7 @@ train=tf.train.AdamOptimizer(0.001).minimize(Loss)
 sess=tf.InteractiveSession()
 tf.global_variables_initializer().run()
 tf.train.start_queue_runners()
-max_step=30000
+max_step=3000
 top_k_op=tf.nn.in_top_k(out_last,tf.cast(input_labels,tf.int64),1)
 for step in range(max_step):
     start_time=time.time()
